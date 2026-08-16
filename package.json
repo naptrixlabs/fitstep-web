@@ -1,6 +1,6 @@
 {
   "name": "fitstep-web",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Vive public website — product info, nutrition-data explainer, and legal pages. No tracking.",
