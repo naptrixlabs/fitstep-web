@@ -1,0 +1,71 @@
+# Deploy vive-web to Railway on push.
+#
+# Every other service in this project deploys through a Railway deployment
+# trigger, which Railway drives from its GitHub App. This repo cannot use one:
+# the App is installed on fitstep-health with a *selected repositories* scope
+# that does not include fitstep-web, so Railway cannot see it and rejects
+# trigger creation with "no one in the project has access to it".
+#
+# Adding the repo to that selection (one action, org owner, GitHub UI) is the
+# better fix — it needs no credential and keeps this service consistent with
+# the other five. See RAILWAY_VIVE.md. This workflow exists so the repo can
+# auto-deploy without it.
+#
+# To arm it, add two repository secrets, each a Railway *project* token
+# (Railway → project → Settings → Tokens; project tokens are scoped to one
+# environment, so neither can touch the other):
+#
+#   RAILWAY_TOKEN_DEVELOPMENT  → development environment
+#   RAILWAY_TOKEN_PRODUCTION   → production environment
+#
+# Without them the job stops at the guard below rather than failing loudly on
+# every push.
+
+name: Deploy
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  # A newer push supersedes an in-flight deploy of the same branch.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select the environment's token
+        id: token
+        env:
+          DEV_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEVELOPMENT }}
+          PROD_TOKEN: ${{ secrets.RAILWAY_TOKEN_PRODUCTION }}
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            TOKEN="${PROD_TOKEN}"
+          else
+            TOKEN="${DEV_TOKEN}"
+          fi
+          if [ -z "${TOKEN}" ]; then
+            echo "::notice::No Railway token for ${GITHUB_REF_NAME}; skipping deploy. See the header of this workflow to arm it."
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "armed=true" >> "$GITHUB_OUTPUT"
+            echo "::add-mask::${TOKEN}"
+            echo "RAILWAY_TOKEN=${TOKEN}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install the Railway CLI
+        if: steps.token.outputs.armed == 'true'
+        run: npm install -g @railway/cli@3
+
+      - name: Deploy
+        if: steps.token.outputs.armed == 'true'
+        # The project token pins the environment, so only the service is named.
+        # --ci keeps the CLI from trying to attach to log output interactively.
+        run: railway up --service vive-web --ci
