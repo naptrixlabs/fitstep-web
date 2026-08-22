@@ -31,6 +31,7 @@ export function Footer() {
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/help">Help &amp; Support</Link>
+          <Link to="/support">Contact Support</Link>
         </nav>
 
         <nav className="footer-col" aria-label="Contact">
@@ -40,7 +41,7 @@ export function Footer() {
       </div>
 
       <div className="footer-base">
-        <span>© {year} Vive. All rights reserved.</span>
+        <span>© {year} Prakash Eppala. All rights reserved.</span>
         <span className="footer-made">Made with intention.</span>
       </div>
     </footer>

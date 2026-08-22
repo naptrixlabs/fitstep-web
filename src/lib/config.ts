@@ -10,4 +10,4 @@ export const APP_STORE_URL = import.meta.env.VITE_APP_STORE_URL ?? '';
 export const PLAY_STORE_URL = import.meta.env.VITE_PLAY_STORE_URL ?? '';
 
 export const CONTACT_EMAIL =
-  import.meta.env.VITE_CONTACT_EMAIL ?? 'hello@vive.app';
+  import.meta.env.VITE_CONTACT_EMAIL ?? 'naptrixlabs@gmail.com';

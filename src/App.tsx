@@ -7,6 +7,7 @@ import { HomePage } from './pages/HomePage';
 import { NutritionPage } from './pages/NutritionPage';
 import { DocPage } from './pages/DocPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { SupportPage } from './pages/SupportPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/privacy" element={<DocPage slug="privacy" fallbackTitle="Privacy Policy" />} />
           <Route path="/terms" element={<DocPage slug="terms" fallbackTitle="Terms of Service" />} />
           <Route path="/help" element={<DocPage slug="help" fallbackTitle="Help & Support" />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
